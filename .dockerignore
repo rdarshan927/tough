@@ -1,0 +1,16 @@
+/rdarshan927/Dropbox/tough/.dockerignore
+node_modules
+npm-debug.log
+dist
+.git
+.gitignore
+README.md
+.env
+.nyc_output
+coverage
+.nyc_output
+.vscode
+.idea
+*.log
+.DS_Store
+Thumbs.db
