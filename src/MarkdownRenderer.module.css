@@ -1,0 +1,157 @@
+.markdownContainer {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 
+    'Open Sans', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+}
+
+.markdown {
+  overflow-wrap: break-word;
+}
+
+.markdown h1 {
+  font-size: 1.8rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  color: #e5e5e5;
+  border-bottom: 1px solid #444;
+  padding-bottom: 0.3rem;
+}
+
+.markdown h2 {
+  font-size: 1.5rem;
+  margin-top: 1.4rem;
+  margin-bottom: 0.8rem;
+  font-weight: 600;
+  color: #e5e5e5;
+}
+
+.markdown h3 {
+  font-size: 1.3rem;
+  margin-top: 1.3rem;
+  margin-bottom: 0.7rem;
+  font-weight: 600;
+  color: #e5e5e5;
+}
+
+.markdown h4, .markdown h5, .markdown h6 {
+  margin-top: 1.2rem;
+  margin-bottom: 0.6rem;
+  font-weight: 600;
+  color: #e5e5e5;
+}
+
+.markdown p {
+  margin-top: 0.8rem;
+  margin-bottom: 0.8rem;
+}
+
+.markdown ul, .markdown ol {
+  margin: 0.8rem 0;
+  padding-left: 1.5rem;
+}
+
+.markdown li {
+  margin: 0.3rem 0;
+}
+
+.markdown blockquote {
+  border-left: 4px solid #555;
+  padding-left: 1rem;
+  margin-left: 0;
+  margin-right: 0;
+  color: #999;
+}
+
+.markdown pre {
+  background-color: #2d2d2d !important;
+  border-radius: 6px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+  border: 1px solid #444;
+}
+
+.markdown code {
+  font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+  font-size: 0.9rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+  background-color: #333;
+  color: #d4d4d4;
+}
+
+.markdown pre code {
+  padding: 0;
+  background-color: transparent;
+}
+
+.markdown table {
+  border-collapse: collapse;
+  margin: 1rem 0;
+  width: 100%;
+}
+
+.markdown th {
+  background-color: #333;
+  padding: 0.5rem;
+  border: 1px solid #444;
+  text-align: left;
+}
+
+.markdown td {
+  padding: 0.5rem;
+  border: 1px solid #444;
+}
+
+.markdown tr:nth-child(odd) {
+  background-color: #252525;
+}
+
+.markdown a {
+  color: #4dabf7;
+  text-decoration: none;
+}
+
+.markdown a:hover {
+  text-decoration: underline;
+}
+
+.markdown img {
+  max-width: 100%;
+  border-radius: 6px;
+}
+
+.markdown hr {
+  border: none;
+  border-top: 1px solid #444;
+  margin: 1.5rem 0;
+}
+
+/* Special callout styling */
+.markdown .info, .markdown .warning, .markdown .error, .markdown .success {
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 6px;
+  border-left: 4px solid;
+}
+
+.markdown .info {
+  background-color: rgba(52, 152, 219, 0.15);
+  border-left-color: #3498db;
+}
+
+.markdown .warning {
+  background-color: rgba(241, 196, 15, 0.15);
+  border-left-color: #f1c40f;
+}
+
+.markdown .error {
+  background-color: rgba(231, 76, 60, 0.15);
+  border-left-color: #e74c3c;
+}
+
+.markdown .success {
+  background-color: rgba(46, 204, 113, 0.15);
+  border-left-color: #2ecc71;
+}
