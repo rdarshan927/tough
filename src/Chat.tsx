@@ -7,16 +7,15 @@ import {
   setOpenAIKey,
   setAnthropicKey,
   setTogetherKey,
-  setOllamaUrl
+  setOllamaUrl,
+  createConversation,
+  setCurrentConversation,
+  updateConversationMessages,
+  deleteConversation,
 } from './Store';
-import type { RootState, AppDispatch, Provider } from './Store';
+import type { RootState, AppDispatch, Provider, Message } from './Store';
 import styles from './Chat.module.css';
 import MarkdownRenderer from './MarkdownRenderer';
-
-interface Message {
-  role: 'user' | 'assistant';
-  content: string;
-}
 
 interface ModelConfig {
   id: string;
@@ -251,7 +250,7 @@ const Chat: React.FC = () => {
   const [apiKeyInput, setApiKeyInput] = useState('');
   const [ollamaUrlInput, setOllamaUrlInput] = useState('http://localhost:11434');
   const [prompt, setPrompt] = useState('');
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const {
     provider,
     groqKey,
@@ -260,12 +259,24 @@ const Chat: React.FC = () => {
     togetherKey,
     ollamaUrl,
   } = useSelector((state: RootState) => state.api);
+  const { conversations, currentConversationId } = useSelector((state: RootState) => state.conversations);
   const dispatch = useDispatch<AppDispatch>();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [model, setModel] = useState('meta-llama/llama-4-scout-17b-16e-instruct');
   const endMessagesRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Get current conversation
+  const currentConversation = conversations.find(c => c.id === currentConversationId);
+  const messages = currentConversation?.messages || [];
+
+  // Initialize with a conversation if none exists
+  useEffect(() => {
+    if (conversations.length === 0) {
+      dispatch(createConversation({ title: 'New Chat' }));
+    }
+  }, []);
 
   // Update model when provider changes
   useEffect(() => {
@@ -313,12 +324,18 @@ const Chat: React.FC = () => {
       setError('API key is required for this provider');
       return;
     }
+
+    // Ensure we have a current conversation
+    if (!currentConversationId) {
+      dispatch(createConversation({ title: 'New Chat' }));
+      return;
+    }
     
     setLoading(true);
     setError(null);
 
     const newMessages = [...messages, { role: 'user' as const, content: prompt }];
-    setMessages(newMessages);
+    dispatch(updateConversationMessages({ conversationId: currentConversationId, messages: newMessages }));
     setPrompt('');
 
     try {
@@ -347,7 +364,10 @@ const Chat: React.FC = () => {
           role: 'assistant',
           content: processedContent // Use the processed content
         };
-        setMessages([...newMessages, typedMessage]);
+        dispatch(updateConversationMessages({ 
+          conversationId: currentConversationId, 
+          messages: [...newMessages, typedMessage] 
+        }));
       } else {
         setError('No valid response received from AI.');
       }
@@ -400,6 +420,23 @@ const Chat: React.FC = () => {
     setPrompt(suggestion);
     if (textareaRef.current) {
       textareaRef.current.focus();
+    }
+  };
+
+  const handleNewChat = () => {
+    dispatch(createConversation({ title: 'New Chat' }));
+    setSidebarOpen(false);
+  };
+
+  const handleSelectConversation = (conversationId: string) => {
+    dispatch(setCurrentConversation(conversationId));
+    setSidebarOpen(false);
+  };
+
+  const handleDeleteConversation = (conversationId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (confirm('Are you sure you want to delete this conversation?')) {
+      dispatch(deleteConversation(conversationId));
     }
   };
 
@@ -485,8 +522,46 @@ const Chat: React.FC = () => {
         </div>
       ) : (
         <>
+          {/* Sidebar */}
+          <div className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
+            <div className={styles.sidebarHeader}>
+              <button className={styles.newChatButton} onClick={handleNewChat}>
+                + New Chat
+              </button>
+              <button className={styles.closeSidebarButton} onClick={() => setSidebarOpen(false)}>
+                ✕
+              </button>
+            </div>
+            <div className={styles.conversationList}>
+              {conversations.map((conv) => (
+                <div
+                  key={conv.id}
+                  className={`${styles.conversationItem} ${conv.id === currentConversationId ? styles.conversationItemActive : ''}`}
+                  onClick={() => handleSelectConversation(conv.id)}
+                >
+                  <div className={styles.conversationTitle}>{conv.title}</div>
+                  <button
+                    className={styles.deleteButton}
+                    onClick={(e) => handleDeleteConversation(conv.id, e)}
+                    title="Delete conversation"
+                  >
+                    🗑️
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Sidebar overlay for mobile */}
+          {sidebarOpen && (
+            <div className={styles.sidebarOverlay} onClick={() => setSidebarOpen(false)} />
+          )}
+
           <header className={styles.header}>
             <div className={styles.headerLeft}>
+              <button className={styles.menuButton} onClick={() => setSidebarOpen(!sidebarOpen)}>
+                ☰
+              </button>
               <h1 className={styles.title}>Tough Chat</h1>
               <div className={styles.providerPill}>
                 {getProviderDisplayName(provider)}
