@@ -1,0 +1,33 @@
+# Python Backend Requirements
+# Core Framework
+flask==3.0.0
+flask-cors==4.0.0
+
+# Environment & Configuration
+python-dotenv==1.0.0
+
+# Google APIs
+google-auth==2.25.2
+google-auth-oauthlib==1.2.0
+google-auth-httplib2==0.2.0
+google-api-python-client==2.110.0
+
+# HTTP Requests
+requests==2.31.0
+httpx==0.25.2
+
+# AI Provider SDKs (Optional - install as needed)
+openai==1.5.0
+anthropic==0.8.1
+groq==0.4.1
+
+# Development Tools
+pytest==7.4.3
+pytest-cov==4.1.0
+black==23.12.1
+flake8==6.1.0
+mypy==1.7.1
+
+# Production Server
+gunicorn==21.2.0
+uvicorn[standard]==0.25.0

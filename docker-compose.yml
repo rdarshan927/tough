@@ -1,30 +1,70 @@
 version: '3.8'
 
 services:
-  tough-chat:
-    build: .
+  # Backend Service (Python)
+  backend:
+    build:
+      context: ./tough-backend
+      dockerfile: Dockerfile
+    container_name: tough-backend
+    ports:
+      - "3001:3001"
+    environment:
+      - FLASK_ENV=production
+      - PORT=3001
+      - HOST=0.0.0.0
+      - FRONTEND_URL=http://localhost:5173
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - ./tough-backend/.env
+    volumes:
+      - ./tough-backend/tokens:/app/tokens
+      - ./tough-backend/data:/app/data
+    restart: unless-stopped
+    networks:
+      - tough-network
+
+  # Frontend Service
+  frontend:
+    build:
+      context: ./front-end
+      dockerfile: Dockerfile
+    container_name: tough-frontend
     ports:
       - "3000:80"
     environment:
       - NODE_ENV=production
+      - VITE_API_URL=http://localhost:3001/api
+    depends_on:
+      - backend
     restart: unless-stopped
-    
-  # Optional: Add Ollama service for local AI
+    networks:
+      - tough-network
+
+  # Optional: Ollama for local AI (uncomment to enable)
   # ollama:
   #   image: ollama/ollama:latest
+  #   container_name: tough-ollama
   #   ports:
   #     - "11434:11434"
   #   volumes:
   #     - ollama_data:/root/.ollama
   #   restart: unless-stopped
-    # Uncomment if you have GPU support
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           count: 1
-    #           capabilities: [gpu]
+  #   networks:
+  #     - tough-network
+  #   # Uncomment if you have GPU support
+  #   # deploy:
+  #   #   resources:
+  #   #     reservations:
+  #   #       devices:
+  #   #         - driver: nvidia
+  #   #           count: 1
+  #   #           capabilities: [gpu]
 
+networks:
+  tough-network:
+    driver: bridge
+
+# Uncomment if using Ollama
 # volumes:
 #   ollama_data:
