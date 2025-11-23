@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist",
+    "deploy": "gh-pages -d dist -b gh-pages -r https://github.com/rdarshan927/tough.git",
     "docker:build": "docker build -t tough-chat .",
     "docker:run": "docker run -d -p 3000:80 --name tough-chat tough-chat",
     "docker:stop": "docker stop tough-chat && docker rm tough-chat",
@@ -30,6 +30,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
+    "@types/node": "^24.10.1",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@vitejs/plugin-react": "^4.4.1",
@@ -39,10 +40,10 @@
     "eslint-plugin-react-refresh": "^0.4.19",
     "gh-pages": "^6.3.0",
     "globals": "^16.0.0",
-    "typescript": "~5.8.3",
-    "typescript-eslint": "^8.30.1",
     "postcss": "^8.4.21",
     "tailwindcss": "^3.3.2",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.30.1",
     "vite": "^6.3.5"
   }
 }
