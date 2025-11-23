@@ -1,202 +1,278 @@
-# Tough Chat
+# Tough Chat - Full Stack AI Assistant
 
-A versatile chat interface powered by Tough Agent. Access the app at https://rdarshan927.github.io/tough
+A powerful full-stack chat application with MCP (Model Context Protocol) integration for Google Calendar, Tasks, and Notes. Built with React + TypeScript frontend and Python backend.
 
-## Features
+🌐 **Live Demo**: [https://rdarshan927.github.io/tough](https://rdarshan927.github.io/tough)
 
-- **Multi-Provider Support**: Works with Groq, OpenAI, Anthropic, Together AI, and Ollama
-- **Beautiful UI**: Dark mode interface with syntax highlighting
-- **Markdown Support**: Rich text rendering with code blocks
-- **Local Storage**: API keys stored securely in your browser
-- **Docker Ready**: Easy deployment with Docker
+## ✨ Features
 
-## Quick Start
+### Core Features
 
-### Online Version
+- 🤖 **Multi-Provider AI Support**: Works with Groq, OpenAI, Anthropic, Together AI, and Ollama
+- 🎨 **Beautiful Modern UI**: Dark mode interface with syntax highlighting
+- 📝 **Rich Markdown Support**: Code blocks, tables, lists, and more
+- 🔐 **Secure Backend**: API keys stored server-side, not in browser
 
-Visit [https://rdarshan927.github.io/tough](https://rdarshan927.github.io/tough) to use the app immediately.
+### MCP Integration (New!)
 
-### Local Development
+- 📅 **Google Calendar**: View, create, update, and delete calendar events
+- ✅ **Google Tasks**: Manage your todo lists with natural language
+- 📓 **Notes System**: Create and manage notes with AI assistance
+- 🔗 **OAuth2 Authentication**: Secure Google account integration
 
-1. **Clone the repository**
+### Technical Features
 
-   ```bash
-   git clone https://github.com/rdarshan927/tough.git
-   cd tough
-   ```
+- 💾 **Persistent Storage**: API keys and OAuth tokens securely stored
+- 🐳 **Docker Ready**: Easy deployment with Docker Compose
+- 🚀 **Fast & Responsive**: Built with Vite for lightning-fast development
+- 🛡️ **Type-Safe**: Full TypeScript coverage on frontend and backend
 
-2. **Install dependencies**
+## 🏗️ Architecture
 
-   ```bash
-   npm install
-   ```
-
-3. **Start development server**
-
-   ```bash
-   npm run dev
-   ```
-
-4. **Open your browser**
-   Navigate to `http://localhost:5173`
-
-## Docker Installation
-
-### Prerequisites
-
-- [Docker](https://docs.docker.com/get-docker/)
-- [Docker Compose](https://docs.docker.com/compose/install/)
-
-### Option 1: Using Docker Compose (Recommended)
-
-1. **Clone and build**
-
-   ```bash
-   git clone https://github.com/rdarshan927/tough.git
-   cd tough
-   docker-compose up -d
-   ```
-
-2. **Access the app**
-   Open `http://localhost:3000` in your browser
-
-### Option 2: Using Docker only
-
-1. **Build the image**
-
-   ```bash
-   docker build -t tough-chat .
-   ```
-
-2. **Run the container**
-
-   ```bash
-   docker run -d -p 3000:80 --name tough-chat tough-chat
-   ```
-
-3. **Access the app**
-   Open `http://localhost:3000` in your browser
-
-### Docker Commands
-
-```bash
-# Stop the application
-docker-compose down
-
-# View logs
-docker-compose logs -f
-
-# Rebuild after changes
-docker-compose up --build -d
-
-# Remove everything including volumes
-docker-compose down -v
+```
+Frontend (React + TypeScript)
+      ↓ HTTP/REST API
+Backend (Python + Flask)
+      ↓ MCP Protocol
+Google APIs (Calendar, Tasks) + Notes (File-based)
 ```
 
-## Configuration
+## 🚀 Quick Start
 
-### API Keys
+### Automated Setup (Recommended)
 
-The app requires API keys from your chosen AI provider:
+```bash
+git clone https://github.com/rdarshan927/tough.git
+cd "TOUGH CHAT"
+./setup.sh
+```
 
-- **Groq**: Get your key from [console.groq.com](https://console.groq.com)
-- **OpenAI**: Get your key from [platform.openai.com](https://platform.openai.com)
-- **Anthropic**: Get your key from [console.anthropic.com](https://console.anthropic.com)
-- **Together AI**: Get your key from [api.together.xyz](https://api.together.xyz)
-- **Ollama**: Run locally at `http://localhost:11434`
+Then follow the on-screen instructions to configure your API keys.
 
-### Environment Variables (Optional)
+### Manual Setup
 
-Create a `.env` file for default configurations:
+See [SETUP.md](./SETUP.md) for detailed instructions.
+
+## 📦 Project Structure
+
+```
+TOUGH CHAT/
+├── tough/
+│   ├── front-end/              # Frontend (React + TypeScript)
+│   │   ├── src/
+│   │   │   ├── Chat.tsx       # Main chat interface
+│   │   │   ├── Chat-v2.tsx    # Backend-connected version
+│   │   │   ├── Store.ts       # Redux state management
+│   │   │   └── api/
+│   │   │       └── client.ts  # API client for backend
+│   │   ├── Dockerfile
+│   │   ├── docker-compose.yml
+│   │   └── package.json
+│   │
+│   └── tough-backend/          # Backend (Python + Flask)
+│       ├── src/
+│       │   ├── __init__.py    # Package initialization
+│       │   ├── app.py         # Flask application (placeholder)
+│       │   ├── routes/        # API routes (to be implemented)
+│       │   └── services/      # Business logic (to be implemented)
+│       ├── tests/             # Test files
+│       ├── data/              # Notes storage (auto-created)
+│       ├── tokens/            # OAuth tokens (auto-created)
+│       ├── requirements.txt   # Python dependencies
+│       └── venv/              # Virtual environment (auto-created)
+│
+├── SETUP.md                    # Detailed setup guide
+├── ARCHITECTURE.md             # System architecture
+├── IMPLEMENTATION.md           # Implementation details
+├── README.md                   # This file
+└── setup.sh                    # Automated setup script
+```
+
+## 🎯 Usage Examples
+
+### Basic Chat
+
+```
+You: "Hello! What can you do?"
+AI: "I'm Tough Agent! I can help you with various tasks including..."
+```
+
+### Calendar Management
+
+```
+You: "What's on my calendar today?"
+AI: "Let me check your calendar... [lists today's events]"
+
+You: "Create a meeting tomorrow at 2 PM for project review"
+AI: "I've created the event 'Project Review' for tomorrow at 2:00 PM"
+```
+
+### Task Management
+
+```
+You: "Show me my todo list"
+AI: "Here are your current tasks: [lists tasks]"
+
+You: "Add a task to buy groceries"
+AI: "I've added 'Buy groceries' to your task list"
+```
+
+### Notes
+
+```
+You: "Create a note about today's standup meeting"
+AI: "I've created a note with the title 'Standup Meeting'..."
+```
+
+## 🔧 Configuration
+
+### Backend (.env)
 
 ```env
-VITE_DEFAULT_PROVIDER=groq
-VITE_OLLAMA_URL=http://localhost:11434
+# Required: At least one AI provider
+GROQ_API_KEY=your_key_here
+OPENAI_API_KEY=your_key_here
+
+# Required: For Google integration
+GOOGLE_CLIENT_ID=your_client_id
+GOOGLE_CLIENT_SECRET=your_client_secret
+GOOGLE_REDIRECT_URI=http://localhost:3001/api/auth/google/callback
+
+# Server config
+PORT=3001
+FRONTEND_URL=http://localhost:5173
 ```
 
-## Using with Ollama (Local AI)
+### Frontend (.env)
 
-The Docker Compose setup includes Ollama for local AI inference:
+```env
+VITE_API_URL=http://localhost:3001/api
+```
 
-1. **Start services**
+## 🐳 Docker Deployment
 
-   ```bash
-   docker-compose up -d
-   ```
-
-2. **Pull an AI model**
-
-   ```bash
-   docker exec -it tough-ollama ollama pull llama3
-   ```
-
-3. **Use in the app**
-   - Select "Ollama (Local)" as provider
-   - Use URL: `http://ollama:11434` (Docker internal network)
-   - Or `http://localhost:11434` (if running locally)
-
-## Deployment
-
-### GitHub Pages
+### Development
 
 ```bash
-npm run deploy
+docker-compose up -d
 ```
 
-### Docker Production
+### Production
 
 ```bash
-# Build production image
-docker build -t tough-chat:prod .
-
-# Run in production
-docker run -d -p 80:80 --name tough-chat-prod tough-chat:prod
+docker-compose -f docker-compose.prod.yml up -d
 ```
 
-## Development
+Access the app at `http://localhost:3000`
 
-### Project Structure
+## 📚 API Documentation
 
+### Chat Endpoint
+
+```bash
+POST /api/chat
+Content-Type: application/json
+
+{
+  "messages": [
+    { "role": "user", "content": "Hello!" }
+  ],
+  "provider": "groq",
+  "model": "llama-3.3-70b-versatile"
+}
 ```
-tough/
-├── src/
-│   ├── Chat.tsx          # Main chat component
-│   ├── MarkdownRenderer.tsx # Markdown rendering
-│   ├── Store.ts          # Redux store
-│   └── ...
-├── docker-compose.yml    # Docker services
-├── Dockerfile           # Container definition
-├── nginx.conf          # Web server config
-└── package.json        # Dependencies
+
+### MCP Tools Endpoint
+
+```bash
+POST /api/mcp/execute
+Content-Type: application/json
+
+{
+  "toolName": "calendar_list_events",
+  "parameters": {
+    "startDate": "2025-10-25",
+    "maxResults": 10
+  }
+}
 ```
 
-### Available Scripts
+See [SETUP.md](./SETUP.md) for complete API documentation.
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run deploy` - Deploy to GitHub Pages
-- `npm run lint` - Run ESLint
+## 🛠️ Development
 
-## Contributing
+### Frontend Development
+
+```bash
+cd tough/front-end
+npm run dev
+```
+
+### Backend Development
+
+```bash
+cd tough/tough-backend
+source venv/bin/activate  # Activate virtual environment
+python -m src.app         # Run the Flask app
+```
+
+### Build for Production
+
+```bash
+# Frontend
+cd tough/front-end
+npm run build
+
+# Backend - Using Gunicorn
+cd tough/tough-backend
+source venv/bin/activate
+gunicorn -w 4 -b 0.0.0.0:3001 "src.app:create_app()"
+```
+
+## 🔒 Security
+
+- ✅ API keys stored server-side only
+- ✅ OAuth tokens encrypted and stored securely
+- ✅ CORS configured for frontend access only
+- ✅ Helmet.js for security headers
+- ✅ Environment variables for sensitive data
+- ✅ No sensitive data in browser localStorage
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## License
+## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Support
+## 🙏 Acknowledgments
+
+- Built with [React](https://reactjs.org/) and [Flask](https://flask.palletsprojects.com/)
+- Google APIs integration via [google-api-python-client](https://github.com/googleapis/google-api-python-client)
+- UI components inspired by modern chat interfaces
+
+## 📧 Support
 
 - **Issues**: [GitHub Issues](https://github.com/rdarshan927/tough/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/rdarshan927/tough/discussions)
+- **Documentation**: [SETUP.md](./SETUP.md)
 
-## Acknowledgments
+## 🗺️ Roadmap
 
-- Built with React, TypeScript, and Vite
-- UI inspired by modern chat interfaces
-- Supports multiple AI providers for flexibility
+- [ ] Add more MCP tools (Gmail, Drive, etc.)
+- [ ] Implement conversation history persistence
+- [ ] Add user authentication and multi-user support
+- [ ] Mobile app development
+- [ ] Voice input/output support
+- [ ] Plugin system for custom MCP tools
+
+---
+
+Made with ❤️ by the Tough Team

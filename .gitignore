@@ -1,24 +1,200 @@
+# ==========================================
+# Tough Chat - Root .gitignore
+# ==========================================
+
+# ==========================================
+# Environment Variables
+# ==========================================
+.env
+.env.local
+.env.*.local
+
+# ==========================================
+# Python Backend
+# ==========================================
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Distribution / packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+tough/tough-backend/venv/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+.hypothesis/
+.tox/
+.nox/
+
+# ==========================================
+# Node.js / Frontend
+# ==========================================
+# Dependencies
+node_modules/
+**/node_modules/
+tough/front-end/node_modules/
+
 # Logs
-logs
-*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
+# Build outputs
+dist/
+dist-ssr/
+build/
 *.local
 
-# Editor directories and files
+# Package manager lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+tough/front-end/package-lock.json
+
+# ==========================================
+# Data & Tokens
+# ==========================================
+tough/tough-backend/data/*.json
+tough/tough-backend/tokens/*.json
+!tough/tough-backend/data/.gitkeep
+!tough/tough-backend/tokens/.gitkeep
+
+# Google credentials
+credentials.json
+token.json
+
+# ==========================================
+# Logs
+# ==========================================
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ==========================================
+# IDEs & Editors
+# ==========================================
+# VSCode
 .vscode/*
 !.vscode/extensions.json
-.idea
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+
+# JetBrains
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+.netrwhist
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+
+# ==========================================
+# OS Files
+# ==========================================
+# macOS
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# ==========================================
+# Testing & Coverage
+# ==========================================
+coverage/
+.nyc_output/
+*.lcov
+.jest/
+test-results/
+playwright-report/
+
+# ==========================================
+# Temporary Files
+# ==========================================
+*.tmp
+*.temp
+*.cache
+.cache/
+
+# ==========================================
+# Docker
+# ==========================================
+*.pid
+*.seed
+*.pid.lock
+
+# ==========================================
+# Project Specific
+# ==========================================
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Archive files
+*.zip
+*.tar.gz
+*.rar
