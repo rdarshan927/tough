@@ -20,6 +20,8 @@
   "dependencies": {
     "@reduxjs/toolkit": "^2.8.2",
     "highlight.js": "^11.8.0",
+    "mammoth": "^1.13.0",
+    "pdfjs-dist": "^6.4.299",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-markdown": "^9.0.1",

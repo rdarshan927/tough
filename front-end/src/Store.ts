@@ -1,7 +1,7 @@
 import { configureStore, createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
-export type Provider = 'groq' | 'openai' | 'anthropic' | 'together' | 'ollama';
+export type Provider = 'groq' | 'openai' | 'anthropic' | 'together' | 'ollama' | 'freellmapi';
 
 interface ApiState {
   provider: Provider;
@@ -10,9 +10,13 @@ interface ApiState {
   anthropicKey: string;
   togetherKey: string;
   ollamaUrl: string;
+  freeLLMApiKey: string;
+  freeLLMApiUrl: string;
 }
 
 const initialState: ApiState = {
+  freeLLMApiKey: localStorage.getItem('freellmapi_key') || '',
+  freeLLMApiUrl: localStorage.getItem('freellmapi_url') || 'http://localhost:3001/v1',
   provider: (localStorage.getItem('ai_provider') as Provider) || 'groq',
   groqKey: localStorage.getItem('groq_key') || '',
   openaiKey: localStorage.getItem('openai_key') || '',
@@ -25,6 +29,14 @@ const apiSlice = createSlice({
   name: 'api',
   initialState,
   reducers: {
+    setFreeLLMApiKey: (state, action: PayloadAction<string>) => {
+      state.freeLLMApiKey = action.payload;
+      localStorage.setItem('freellmapi_key', action.payload);
+    },
+    setFreeLLMApiUrl: (state, action: PayloadAction<string>) => {
+      state.freeLLMApiUrl = action.payload;
+      localStorage.setItem('freellmapi_url', action.payload);
+    },
     setProvider: (state, action: PayloadAction<Provider>) => {
       state.provider = action.payload;
       localStorage.setItem('ai_provider', action.payload);
@@ -54,6 +66,8 @@ const apiSlice = createSlice({
 
 export const { 
   setProvider, 
+  setFreeLLMApiKey,
+  setFreeLLMApiUrl,
   setGroqKey, 
   setOpenAIKey, 
   setAnthropicKey, 

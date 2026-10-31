@@ -167,6 +167,7 @@ const Chat: React.FC = () => {
 
   const getProviderDisplayName = (provider: Provider): string => {
     const names: Record<Provider, string> = {
+      freellmapi: 'FreeLLMAPI',
       groq: 'Groq',
       openai: 'OpenAI',
       anthropic: 'Anthropic',
