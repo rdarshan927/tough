@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { 
   setProvider,
   setGroqKey,
+  setFreeLLMApiKey,
+  setFreeLLMApiUrl,
   setOpenAIKey,
   setAnthropicKey,
   setTogetherKey,
@@ -13,10 +15,8 @@ import type { RootState, AppDispatch, Provider } from './Store';
 import styles from './Chat.module.css';
 import MarkdownRenderer from './MarkdownRenderer';
 
-interface Message {
-  role: 'user' | 'assistant';
-  content: string;
-}
+import { ACCEPTED_FILES, MAX_ATTACHMENTS, readAttachment, serializeMessages } from './attachments';
+import type { Attachment, ChatMessage as Message } from './attachments';
 
 interface ModelConfig {
   id: string;
@@ -25,6 +25,7 @@ interface ModelConfig {
 }
 
 const MODELS: ModelConfig[] = [
+  { id: 'auto', name: 'Auto (FreeLLMAPI routing)', provider: 'freellmapi' },
   // --- Groq models (supported as of June 2025) ---
   { id: 'meta-llama/llama-4-scout-17b-16e-instruct', name: 'Llama 4 Scout 17B', provider: 'groq' },
   { id: 'meta-llama/llama-4-maverick-17b-128e-instruct', name: 'Llama 4 Maverick 17B', provider: 'groq' },
@@ -70,8 +71,10 @@ const EXAMPLE_PROMPTS = [
   "What are some healthy meal prep ideas?"
 ];
 
-const getProviderEndpoint = (provider: Provider, ollamaUrl?: string): string => {
+const getProviderEndpoint = (provider: Provider, ollamaUrl?: string, freeLLMApiUrl?: string): string => {
   switch (provider) {
+    case 'freellmapi':
+      return `${(freeLLMApiUrl || 'http://localhost:3001/v1').replace(/\/+$/, '')}/chat/completions`;
     case 'groq':
       return 'https://api.groq.com/openai/v1/chat/completions';
     case 'openai':
@@ -93,12 +96,16 @@ const getAuthHeaders = (
   openaiKey: string,
   anthropicKey: string,
   togetherKey: string,
+  freeLLMApiKey: string,
 ): Record<string, string> => {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
 
   switch (provider) {
+    case 'freellmapi':
+      headers['Authorization'] = `Bearer ${freeLLMApiKey}`;
+      break;
     case 'groq':
       headers['Authorization'] = `Bearer ${groqKey}`;
       break;
@@ -121,24 +128,25 @@ const getAuthHeaders = (
 };
 
 const formatRequestBody = (provider: Provider, model: string, messages: Message[]): string => {
+  const requestMessages = serializeMessages(messages, provider);
   switch (provider) {
     case 'anthropic':
       return JSON.stringify({
         model: model,
-        messages: messages,
+        messages: requestMessages,
         max_tokens: 4096,
       });
     case 'ollama':
       return JSON.stringify({
         model: model,
-        messages: messages,
+        messages: requestMessages,
         stream: false,
       });
     default:
       // OpenAI-compatible format (works for Groq, OpenAI, Together)
       return JSON.stringify({
         model: model,
-        messages: messages,
+        messages: requestMessages,
       });
   }
 };
@@ -251,6 +259,9 @@ const Chat: React.FC = () => {
   const [apiKeyInput, setApiKeyInput] = useState('');
   const [ollamaUrlInput, setOllamaUrlInput] = useState('http://localhost:11434');
   const [prompt, setPrompt] = useState('');
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [readingFiles, setReadingFiles] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const {
     provider,
@@ -258,8 +269,11 @@ const Chat: React.FC = () => {
     openaiKey,
     anthropicKey,
     togetherKey,
+    freeLLMApiKey,
+    freeLLMApiUrl,
     ollamaUrl,
   } = useSelector((state: RootState) => state.api);
+  const [freeLLMApiUrlInput, setFreeLLMApiUrlInput] = useState(freeLLMApiUrl);
   const dispatch = useDispatch<AppDispatch>();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -292,6 +306,8 @@ const Chat: React.FC = () => {
 
   const currentApiKey = (): string => {
     switch (provider) {
+      case 'freellmapi':
+        return freeLLMApiKey;
       case 'groq':
         return groqKey;
       case 'openai':
@@ -308,7 +324,7 @@ const Chat: React.FC = () => {
   };
 
   const handleSendMessage = async () => {
-    if (!prompt.trim()) return;
+    if (loading || readingFiles || (!prompt.trim() && !attachments.length)) return;
     if (provider !== 'ollama' && !currentApiKey()) {
       setError('API key is required for this provider');
       return;
@@ -317,13 +333,14 @@ const Chat: React.FC = () => {
     setLoading(true);
     setError(null);
 
-    const newMessages = [...messages, { role: 'user' as const, content: prompt }];
+    const newMessages = [...messages, { role: 'user' as const, content: prompt, attachments }];
     setMessages(newMessages);
     setPrompt('');
+    setAttachments([]);
 
     try {
-      const endpoint = getProviderEndpoint(provider, ollamaUrl);
-      const headers = getAuthHeaders(provider, groqKey, openaiKey, anthropicKey, togetherKey);
+      const endpoint = getProviderEndpoint(provider, ollamaUrl, freeLLMApiUrl);
+      const headers = getAuthHeaders(provider, groqKey, openaiKey, anthropicKey, togetherKey, freeLLMApiKey);
       const body = formatRequestBody(provider, model, newMessages);
 
       const response = await fetch(endpoint, {
@@ -359,6 +376,31 @@ const Chat: React.FC = () => {
     }
   };
 
+  const handleFilesSelected = async (event: ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    event.target.value = '';
+    if (!files.length) return;
+    if (attachments.length + files.length > MAX_ATTACHMENTS) {
+      setError(`Attach up to ${MAX_ATTACHMENTS} files per message.`);
+      return;
+    }
+    setReadingFiles(true);
+    setError(null);
+    try {
+      const results = await Promise.allSettled(files.map(readAttachment));
+      const accepted: Attachment[] = [];
+      const errors: string[] = [];
+      for (const result of results) {
+        if (result.status === 'fulfilled') accepted.push(result.value);
+        else errors.push(result.reason instanceof Error ? result.reason.message : 'Could not read file.');
+      }
+      setAttachments(current => [...current, ...accepted]);
+      if (errors.length) setError(errors.join(' '));
+    } finally {
+      setReadingFiles(false);
+    }
+  };
+
   const handlePromptKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -367,7 +409,27 @@ const Chat: React.FC = () => {
   };
 
   const handleApiKeySave = () => {
+    if (provider === 'freellmapi') {
+      try {
+        const url = new URL(freeLLMApiUrlInput.trim());
+        if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password || url.search || url.hash) {
+          throw new Error('Invalid URL');
+        }
+      } catch {
+        setError('Enter a valid HTTP or HTTPS FreeLLMAPI base URL without credentials, query, or fragment.');
+        return;
+      }
+      if (!apiKeyInput.trim()) {
+        setError('FreeLLMAPI API key is required.');
+        return;
+      }
+    }
+    setError(null);
     switch (provider) {
+      case 'freellmapi':
+        dispatch(setFreeLLMApiUrl(freeLLMApiUrlInput.trim().replace(/\/+$/, '')));
+        dispatch(setFreeLLMApiKey(apiKeyInput.trim()));
+        break;
       case 'groq':
         dispatch(setGroqKey(apiKeyInput));
         break;
@@ -389,6 +451,8 @@ const Chat: React.FC = () => {
   };
 
   const handleProviderChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    setApiKeyInput('');
+    setError(null);
     dispatch(setProvider(e.target.value as Provider));
   };
 
@@ -409,6 +473,8 @@ const Chat: React.FC = () => {
 
   const getProviderDisplayName = (provider: Provider): string => {
     switch (provider) {
+      case 'freellmapi':
+        return 'FreeLLMAPI';
       case 'groq':
         return 'Groq';
       case 'openai':
@@ -442,6 +508,7 @@ const Chat: React.FC = () => {
               onChange={handleProviderChange}
               style={{ width: '100%', marginBottom: '1rem' }}
             >
+              <option value="freellmapi">FreeLLMAPI</option>
               <option value="groq">Groq</option>
               <option value="openai">OpenAI</option>
               <option value="anthropic">Anthropic</option>
@@ -450,6 +517,20 @@ const Chat: React.FC = () => {
             </select>
           </div>
 
+          {provider === 'freellmapi' && (
+            <>
+              <label htmlFor="freellmapi-url">FreeLLMAPI base URL (including /v1)</label>
+              <input
+                id="freellmapi-url"
+                type="url"
+                className={styles.loginInput}
+                value={freeLLMApiUrlInput}
+                onChange={e => setFreeLLMApiUrlInput(e.target.value)}
+                placeholder="http://localhost:3001/v1"
+              />
+            </>
+          )}
+          {error && <p role="alert">{error}</p>}
           {provider === 'ollama' ? (
             <input
               type="text"
@@ -500,6 +581,7 @@ const Chat: React.FC = () => {
                 onChange={handleProviderChange}
                 style={{ marginRight: '0.5rem' }}
               >
+                <option value="freellmapi">FreeLLMAPI</option>
                 <option value="groq">Groq</option>
                 <option value="openai">OpenAI</option>
                 <option value="anthropic">Anthropic</option>
@@ -565,6 +647,16 @@ const Chat: React.FC = () => {
                   <div className={styles.messageBubble}>
                     <div className={styles.messageContent}>
                       <MarkdownRenderer content={msg.content} />
+                      {!!msg.attachments?.length && (
+                        <div className={styles.attachments}>
+                          {msg.attachments.map(attachment => (
+                            <div key={attachment.id} className={styles.attachment}>
+                              {attachment.kind === 'image' && <img src={attachment.data} alt={attachment.name} className={styles.attachmentImage} />}
+                              <span>{attachment.name}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -589,6 +681,25 @@ const Chat: React.FC = () => {
 
           <div className={styles.inputContainer}>
             <div className={styles.inputWrapper}>
+              <div className={styles.attachmentToolbar}>
+                <input ref={fileInputRef} type="file" accept={ACCEPTED_FILES} multiple hidden onChange={handleFilesSelected} disabled={loading || readingFiles} />
+                <button type="button" className={styles.attachButton} disabled={loading || readingFiles || attachments.length >= MAX_ATTACHMENTS} onClick={() => fileInputRef.current?.click()}>
+                  {readingFiles ? 'Reading files…' : '+ Attach files'}
+                </button>
+                <span className={styles.attachmentHint}>Images, PDF, DOCX or text · 10 MB each · up to 5</span>
+              </div>
+              {!!attachments.length && (
+                <div className={styles.attachments}>
+                  {attachments.map(attachment => (
+                    <div key={attachment.id} className={styles.attachment}>
+                      {attachment.kind === 'image' && <img src={attachment.data} alt={attachment.name} className={styles.attachmentImage} />}
+                      <span>{attachment.name}</span>
+                      <button type="button" disabled={loading || readingFiles} aria-label={`Remove ${attachment.name}`} onClick={() => setAttachments(current => current.filter(a => a.id !== attachment.id))}>×</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <p className={styles.attachmentHint}>Images require a vision model. Documents are sent as extracted text; scanned PDFs need OCR.</p>
               <div className={styles.textareaContainer}>
                 <textarea
                   ref={textareaRef}
@@ -603,7 +714,7 @@ const Chat: React.FC = () => {
                 <button
                   className={styles.sendButton}
                   onClick={handleSendMessage}
-                  disabled={loading || !prompt.trim()}
+                  disabled={loading || readingFiles || (!prompt.trim() && !attachments.length)}
                   title="Send message"
                 >
                   →

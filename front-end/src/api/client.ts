@@ -5,7 +5,8 @@ export interface Message {
   content: string;
 }
 
-export type Provider = 'groq' | 'openai' | 'anthropic' | 'together' | 'ollama';
+import type { Provider } from '../Store';
+export type { Provider } from '../Store';
 
 // Chat API
 export async function sendMessage(messages: Message[], provider: Provider, model: string) {

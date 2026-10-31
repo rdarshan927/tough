@@ -399,3 +399,50 @@
 .production .adminControl {
   display: none;
 }
+.attachmentToolbar, .attachments {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.attachButton, .attachment button {
+  background: #333;
+  color: #e5e5e5;
+  border: 1px solid #555;
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  cursor: pointer;
+}
+
+.attachButton:disabled, .attachment button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.attachmentHint {
+  color: #aaa;
+  font-size: 0.75rem;
+  margin: 0 0 0.5rem;
+}
+
+.attachment {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: #292929;
+  border: 1px solid #444;
+  border-radius: 8px;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  font-size: 0.8rem;
+}
+
+.attachmentImage {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  border-radius: 4px;
+}

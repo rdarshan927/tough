@@ -4,7 +4,7 @@ A versatile chat interface powered by Tough Agent. Access the app at https://rda
 
 ## Features
 
-- **Multi-Provider Support**: Works with Groq, OpenAI, Anthropic, Together AI, and Ollama
+- **Multi-Provider Support**: Works with Groq, OpenAI, Anthropic, Together AI, FreeLLMAPI, and Ollama
 - **Beautiful UI**: Dark mode interface with syntax highlighting
 - **Markdown Support**: Rich text rendering with code blocks
 - **Local Storage**: API keys stored securely in your browser
@@ -200,3 +200,29 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Built with React, TypeScript, and Vite
 - UI inspired by modern chat interfaces
 - Supports multiple AI providers for flexibility
+
+## FreeLLMAPI
+
+Select **FreeLLMAPI** in the provider menu, enter your instance's base URL
+(including `/v1`, for example `http://localhost:3001/v1`) and unified API key,
+then click **Connect to FreeLLMAPI**. The URL and key are saved in this browser.
+Chat requests go directly to that instance using Bearer authentication and the
+`auto` model for automatic routing.
+
+Your instance must allow requests from the frontend's origin (CORS). When using
+the hosted HTTPS frontend, use an HTTPS FreeLLMAPI endpoint accessible from your
+browser.
+
+## Image and document attachments
+
+Click **+ Attach files** in the chat composer to add PNG, JPEG, WebP, GIF,
+PDF, DOCX, TXT, Markdown, CSV, JSON, or log files. Review image previews and
+filenames, remove unwanted files, then send with or without a typed message.
+Each message accepts up to five files, with a 10 MB limit per file.
+
+Documents are read locally and included as extracted text (up to 100,000
+characters per document). PDF layout and embedded images are not included;
+scanned PDFs need OCR first. Image attachments require a vision-capable model
+and endpoint, including when routing through FreeLLMAPI. Attachments remain in
+the current chat memory and are sent directly to the selected provider with
+conversation history; refreshing clears them.
